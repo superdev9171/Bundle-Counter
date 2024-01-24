@@ -22,8 +22,8 @@
 
         if (bundle.level > 0) {
             styleHtml = 'margin-left:' + bundle.level * 25 + 'px;';
-            inputHtml = '<input type="number" class="form-control form-control-sm input-need-count" placeholder="Need"/>';
-            inputHtml += '<input type="number" class="form-control form-control-sm input-bundle-amount ms-2 border border-success" placeholder="Amount"/>';
+            inputHtml = `<input type="number" class="form-control form-control-sm input-need-count" placeholder="Need" value="${bundle.need || 0}"/>`;
+            inputHtml += `<input type="number" class="form-control form-control-sm input-bundle-amount ms-2 border border-success" placeholder="Amount" value="${bundle.amount || 0}"/>`;
         }
 
         let bundleHtml = `
@@ -159,8 +159,8 @@
                     id = Math.max(bundle.id, id) + 1;
                 });
 
-                onUpdateBundle();
                 $('#div-bundles').html(html);
+                onUpdateBundle();
             } else {
                 alert(res['errorMessage'] || 'Operation failed');
             }

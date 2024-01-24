@@ -50,17 +50,17 @@ namespace BundleCounter.Services
             if (data == null)
                 return bundles;
 
-            foreach(var item in data)
+            bundles = data.Select(item => new Bundle
             {
-                var bundle = new Bundle
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    Need = item.Need,
-                    Amount = item.Amount,
-                    ParentId = item.ParentId,
-                };
+                Id = item.Id,
+                Name = item.Name,
+                Need = item.Need,
+                Amount = item.Amount,
+                ParentId = item.ParentId,
+            }).ToList();
 
+            foreach (var bundle in bundles)
+            {
                 var parent = bundles.FirstOrDefault(bd => bd.Id == bundle.ParentId);
                 
                 if (parent != null)
@@ -71,8 +71,6 @@ namespace BundleCounter.Services
                     else
                         parent.Parts = new List<Bundle>() { bundle };
                 }    
-
-                bundles.Add(bundle);
             }
 
             return bundles;
@@ -119,7 +117,11 @@ namespace BundleCounter.Services
                     bundle.ParentId = null;
                 }
 
-                bundleRepository.Insert(bundles[0]);
+                foreach(var bundle in bundles)
+                {
+                    if (bundle.Parent == null)
+                        bundleRepository.Insert(bundle);
+                }
 
                 res.Success = true;
 
