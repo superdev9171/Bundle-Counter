@@ -2,6 +2,43 @@
     ViewData["Title"] = "Help";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>Bundles</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<p>Manage bundle list and calculate the maximum number of bundles that can be made.</p>
+
+<div class="row">
+    <div class="mt-3 col-md-8">
+        <div class="d-flex align-items-baseline">
+            <h2>List</h2>
+            <a class="btn btn-primary btn-sm ms-auto" id="btn-add">Add Bundle</a>
+        </div>
+    </div>
+    <div class="mt-2 col-md-8">
+        <div class="card">
+            <div class="card-body" id="div-bundles">
+            </div>
+        </div>
+    </div>
+    <div class="mt-2 col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div>
+                    <label>Bundle</label>
+                    <div class="mt-1">
+                        <select class="form-select" id="select-bundle">
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 fs-4" id="div-bundle-count">
+                </div>
+                <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-primary">How many bundles can be made?</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/home.js" asp-append-version="true"></script>
+}
