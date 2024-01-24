@@ -1,6 +1,13 @@
+using BundleCounter;
 using BundleCounter.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<AppDBContext>(options =>
+    options.UseSqlite(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -26,5 +33,30 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<AppDBContext>();
+    ILogger? logger = services.GetService<ILogger<Program>>();
+    logger?.LogInformation("Server Starting At: " + DateTimeOffset.Now.ToString());
+    int tries = 10;
+    while (tries-- > 0)
+    {
+        try
+        {
+            if (context.Database.GetPendingMigrations().Any())
+                context.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "");
+            Thread.Sleep(5000);
+        }
+    }
+}
 
 app.Run();

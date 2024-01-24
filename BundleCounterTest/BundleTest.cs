@@ -8,9 +8,9 @@ namespace BundleCounterTest
         }
 
         [Test]
-        public void Test1()
+        public void TestBicycle()
         {
-            Assert.Pass();
+            
         }
     }
 }
