@@ -1,11 +1,10 @@
-﻿using BundleCounter;
-using BundleCounter.Models.Requests;
+﻿using BundleCounter.Models.Requests;
 
 namespace BundleCounter.Repository
 {
-    public class AssetRepository : BaseRepository<Bundle>
+    public class BundleRepository : BaseRepository<Bundle>
     {
-        public AssetRepository(AppDBContext dbContext) : base(dbContext)
+        public BundleRepository(AppDBContext dbContext) : base(dbContext)
         {
             
         }

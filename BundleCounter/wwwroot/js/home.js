@@ -9,6 +9,8 @@
     function initEvents() {
         $('#btn-add').click(() => onClickAdd());
         $('#btn-max-count').click(onClickMaxCount);
+        $('#btn-save').click(onClickSave);
+        $('#btn-load').click(onClickLoad);
         $('#div-bundles').on('click', '.btn-add-child', onClickAddChild);
         $('#div-bundles').on('click', '.btn-delete', onClickDelete);
     }
@@ -99,9 +101,10 @@
     }
 
     function onClickMaxCount() {
-        updateBundleData();
+        if (!checkAndUpdateBundleData())
+            return;
 
-        $.post('/bundlecount', {
+        $.post('/bundle/count', {
             bundleId: $('#select-bundle').val(),
             bundles: bundles
         }).then(res => {
@@ -110,6 +113,54 @@
                     $('#div-bundle-count').text('Count: No Limit');
                 else
                     $('#div-bundle-count').text(`Count: ${res.data}`);
+            } else {
+                alert(res['errorMessage'] || 'Operation failed');
+            }
+        });
+    }
+
+    function onClickSave() {
+        if (!checkAndUpdateBundleData())
+            return;
+
+        $.post('/bundle', {
+            bundles: bundles
+        }).then(res => {
+            if (res.success) {
+                alert('Bundles are saved');
+            } else {
+                alert(res['errorMessage'] || 'Operation failed');
+            }
+        });
+    }
+
+    function setLevelAndLoadHtml(parent) {
+        var html = getBundleHtml(parent);
+        bundles.filter(bd => bd.parentId == parent.id).forEach(bd => {
+            bd.level = parent.level + 1;
+            html += setLevelAndLoadHtml(bd);
+        });
+        return html;
+    }
+
+    function onClickLoad() {
+
+        $.get('/bundle').then(res => {
+            if (res.success) {
+                bundles = res.data;
+
+                html = '';
+                bundles.forEach(bundle => {
+                    if (bundle.parentId < 0) {
+                        bundle.level = 0;
+                        html += setLevelAndLoadHtml(bundle);
+                    }
+
+                    id = Math.max(bundle.id, id) + 1;
+                });
+
+                onUpdateBundle();
+                $('#div-bundles').html(html);
             } else {
                 alert(res['errorMessage'] || 'Operation failed');
             }
@@ -143,12 +194,25 @@
         return bundle;
     }
 
-    function updateBundleData() {
+    function checkAndUpdateBundleData() {
         // Update bundle data
+
+        let isValid = true;
+
         bundles.forEach(bundle => {
             bundle.amount = $(`.row-bundle[data-id="${bundle.id}"] .input-bundle-amount`).val() ?? 0;
             bundle.need = $(`.row-bundle[data-id="${bundle.id}"] .input-need-count`).val() ?? 0;
+
+            if (bundle.level > 0 && bundle.need == 0)
+                isValid = false;
         });
+
+        if (!isValid) {
+            alert('Please input the values.');
+            return false;
+        }
+
+        return isValid;
     }
 
     init();

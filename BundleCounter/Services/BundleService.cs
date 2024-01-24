@@ -1,17 +1,19 @@
-﻿using BundleCounter.Controllers;
-using BundleCounter.Models.Requests;
+﻿using BundleCounter.Models.Requests;
 using BundleCounter.Models.Responses;
-using System.Linq.Expressions;
+using BundleCounter.Repository;
 
 namespace BundleCounter.Services
 {
     public class BundleService : IBundleService
     {
         private readonly ILogger<BundleService> _logger;
+        private readonly BundleRepository bundleRepository;
 
-        public BundleService(ILogger<BundleService> logger) 
+        public BundleService(AppDBContext appDBContext, ILogger<BundleService> logger) 
         { 
             _logger = logger;
+
+            bundleRepository = new BundleRepository(appDBContext);
         }
 
         public ProcResult<int> GetMaxBundleCount(BundleCountRequest req)
@@ -20,7 +22,7 @@ namespace BundleCounter.Services
 
             try
             {
-                var bundles = GetBundles(req.Bundles);
+                var bundles = GetBundlesFromData(req.Bundles);
                 var root = bundles.FirstOrDefault(bd => bd.Id == req.BundleId);
                 if (root == null)
                 {
@@ -41,7 +43,7 @@ namespace BundleCounter.Services
             return res;
         }
 
-        private List<Bundle> GetBundles(List<BundleData>? data)
+        private List<Bundle> GetBundlesFromData(List<BundleData>? data)
         {
             var bundles = new List<Bundle>();
             
@@ -93,10 +95,72 @@ namespace BundleCounter.Services
                 int partCount = GetMaxCount(part);
                 int count = partCount / part.Need;
 
-                max = max == -1 ? count : max = Math.Min(max, part.Amount);
+                max = max == -1 ? count : Math.Min(max, count);
             }
 
             return max;
+        }
+
+        public ProcResult<bool> SaveBundles(BundleSaveRequest req)
+        {
+            var res = new ProcResult<bool>();
+
+            try
+            {
+                var bundles = GetBundlesFromData(req.Bundles);
+
+                // Remove existing bundles
+                var existingBundles = bundleRepository.FindAll();
+                bundleRepository.RemoveAll(existingBundles);
+
+                // Add new bundles
+                foreach(var bundle in bundles)
+                {
+                    bundle.ParentId = null;
+                }
+
+                bundleRepository.Insert(bundles[0]);
+
+                res.Success = true;
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "");
+            }
+
+            return res;
+        }
+
+        public ProcResult<List<BundleData>> GetBundles()
+        {
+            var res = new ProcResult<List<BundleData>>();
+
+            try
+            {
+                var bundles = bundleRepository.FindAll();
+
+                var list = bundles.Select(bd => new BundleData
+                {
+                    Id = bd.Id,
+                    ParentId = bd.ParentId ?? -1,
+                    Name = bd.Name,
+                    Amount = bd.Amount,
+                    Need = bd.Need
+                }).ToList();
+
+                res.Success = true;
+                res.Data = list;
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "");
+            }
+
+            return res;
         }
     }
 }
