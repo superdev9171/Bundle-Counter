@@ -38,10 +38,11 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     var context = services.GetRequiredService<AppDBContext>();
-    ILogger? logger = services.GetService<ILogger<Program>>();
+    var logger = services.GetService<ILogger<Program>>();
+    
     logger?.LogInformation("Server Starting At: " + DateTimeOffset.Now.ToString());
+    
     int tries = 10;
     while (tries-- > 0)
     {
