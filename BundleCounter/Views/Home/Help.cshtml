@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Help";
+}
+
+<h2>Bundles</h2>
+<p>
+    A bundle is <span class="text-decoration-underline">a product</span> that is composed of <span class="text-decoration-underline">one or more products</span> (aka bundle parts).
+    An example of a bundle would be a bike. The bike is the bundle, bundle parts would be "wheel", "pedals", "seat", "frame" and "breaks". A bundle can have more than one unit of a given part.
+    Example, a product named Bike contains 2 units of product Wheel.
+</p>
+
+<p>
+    Bundles can be modeled into a tree structure where each node a product that can also be a bundle of other products.
+</p>
+
+<h2>Input</h2>
+<p>Given the following:</p>
+<ul>
+    <li>A bundle has one or more parts</li>
+    <li>A bundle can contain other bundles</li>
+    <li>Leaf elements aka spare parts have an associated inventory count</li>
+    <li>Bundles are strictly constructed from their respective parts inventory - you can only build as many bundles as the available spare parts allows.</li>
+</ul>
+
+<h2>Output</h2>
+<p>The program computes the maximum number of finished bundles one can build.</p>
+
+<h2>Programmer</h2>
+<p>
+    Aleksandar Bojicic<br />
+    aleksandar9171@gmail.com
+</p>
